@@ -281,7 +281,7 @@ elif page == "📊 Team Overview":
 
     st.markdown("---")
 
-    # Narossoh Productivity Section
+    # Narossoh Productivity
     st.subheader("Narrossoh Average Productivity")
     st.caption("Calculated from Narossoh’s total opportunities/defects over the reporting period")
 
