@@ -1,0 +1,204 @@
+import streamlit as st
+import pandas as pd
+import altair as alt
+
+# ====================== PAGE CONFIG ======================
+st.set_page_config(
+    page_title="Pick & Stow Dashboard",
+    page_icon="📦",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ====================== PICK & STOW DATA ======================
+# Original Pick Data
+pick_data = {
+    "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
+             "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
+             "nkaibrah", "matstrak", "abdiosmg", "musaom"],
+    "Opportunities": [746, 804, 169, 614, 214, 208, 110, 362, 68, 176, 69, 97, 37, 255, 186, 44, 55],
+    "Defects": [57, 14, 13, 13, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2],
+    "DPMO": [76408, 17412, 76923, 21172, 37383, 38461, 63636, 19337, 88235, 34090, 72463, 51546, 108108, 15686, 16129, 68181, 36363]
+}
+
+# Original Stow Data
+stow_data = {
+    "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
+             "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
+             "abdiosmg", "jnoonoor", "arrizola"],
+    "Opportunities": [1068, 758, 330, 668, 246, 445, 168, 518, 580, 594, 416, 204, 308, 127, 214, 63, 57],
+    "Defects": [164, 130, 117, 94, 45, 37, 22, 17, 15, 13, 12, 12, 9, 7, 4, 3, 3],
+    "DPMO": [153558, 171503, 354545, 140718, 182926, 83146, 130952, 32818, 25862, 21885, 28846, 58823, 29220, 55118, 18691, 47619, 52631]
+}
+
+df_pick_orig = pd.DataFrame(pick_data)
+df_stow_orig = pd.DataFrame(stow_data)
+
+# Normalized Data (kept for other pages)
+pick_norm_data = { ... }  # (your existing normalized data - unchanged)
+stow_norm_data = { ... }  # (your existing normalized data - unchanged)
+
+df_pick_norm = pd.DataFrame(pick_norm_data)
+df_stow_norm = pd.DataFrame(stow_norm_data)
+
+# ====================== WORK HOURS DATA ======================
+hours_data = {
+    "User": ["narossoh"] * 8,
+    "Date": ["2026-04-05", "2026-04-05", "2026-04-06", "2026-04-06", "2026-04-09", "2026-04-09", 
+             "2026-04-10", "2026-04-11"],
+    "Day": ["Sunday", "Sunday", "Monday", "Monday", "Thursday", "Thursday", "Friday", "Saturday"],
+    "Start Time": ["19:00", "19:00", "19:00", "19:00", "19:00", "19:00", "19:00", "14:30"],
+    "End Time": ["23:00", "23:00", "23:00", "23:00", "23:00", "23:00", "23:00", "18:30"],
+    "Hours Worked": [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
+}
+df_hours = pd.DataFrame(hours_data)
+
+all_users = sorted(df_pick_orig["User"].unique())
+
+# ====================== SIDEBAR ======================
+st.sidebar.title("📊 Navigation")
+page = st.sidebar.radio("Go to:", 
+    ["🏠 Home & Summary", 
+     "📦 Pick Report", 
+     "📦 Stow Report", 
+     "👥 3-Associate Comparison",
+     "⏰ Associate Work Hours & Productivity",
+     "📊 Team Overview",
+     "💰 Payroll Overview"])
+
+# ====================== MAIN PAGES (existing ones unchanged) ======================
+# ... [All your existing pages: Home, Pick, Stow, 3-Associate, Work Hours remain the same] ...
+
+# (Paste your existing if/elif blocks for Home, Pick, Stow, 3-Associate, and Work Hours here)
+
+# ====================== NEW PAYROLL OVERVIEW PAGE ======================
+elif page == "💰 Payroll Overview":
+    st.title("💰 Payroll Overview")
+    st.markdown("**April 5th – April 12th, 2026** | Manager & Associate Labor Cost Estimate")
+
+    st.subheader("Manager Payroll")
+    st.info("5 Managers × 40 hours × $22.50/hour")
+    
+    manager_total = 5 * 40 * 22.50
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Managers", "5")
+        st.metric("Hours per Manager", "40")
+    with col2:
+        st.metric("Hourly Rate", "$22.50")
+        st.metric("Total Manager Cost", f"${manager_total:,.2f}")
+
+    st.markdown("---")
+
+    st.subheader("Associate Payroll")
+    st.info("14 Associates × ~19 hours (period total)")
+
+    associate_total_hours = 14 * 19
+    # Assuming average associate rate - you can adjust this
+    associate_hourly_rate = 18.00   # Example rate - change if you have exact rate
+    associate_total = associate_total_hours * associate_hourly_rate
+
+    col3, col4 = st.columns(2)
+    with col3:
+        st.metric("Associates", "14")
+        st.metric("Average Hours per Associate", "19")
+    with col4:
+        st.metric("Estimated Hourly Rate", f"${associate_hourly_rate:.2f}")
+        st.metric("Total Associate Cost", f"${associate_total:,.2f}")
+
+    st.markdown("---")
+
+    # Grand Total
+    grand_total = manager_total + associate_total
+    st.subheader("Total Labor Cost Estimate")
+    st.metric("Grand Total Payroll (Managers + Associates)", f"${grand_total:,.2f}")
+
+    # Breakdown Chart
+    payroll_data = pd.DataFrame({
+        "Category": ["Managers", "Associates"],
+        "Cost": [manager_total, associate_total]
+    })
+
+    chart = alt.Chart(payroll_data).mark_bar().encode(
+        x=alt.X("Category:N", sort=None),
+        y=alt.Y("Cost:Q", title="Cost ($)"),
+        color=alt.Color("Category:N", scale=alt.Scale(range=["#1f77b4", "#ff7f0e"]))
+    ).properties(height=300)
+
+    st.altair_chart(chart, use_container_width=True)
+
+    st.info("""
+    **Notes**: 
+    - Manager rate: $22.50 per hour for 40 hours.
+    - Associate hours: Approximate 19 hours per associate for the week of April 5–12.
+    - Associate hourly rate is estimated at $18.00 (you can adjust this value in the code).
+    - This is an estimate based on the provided assumptions.
+    """)
+
+# ====================== EXISTING TEAM OVERVIEW (kept as is) ======================
+elif page == "📊 Team Overview":
+    st.title("📊 Team Overview")
+    st.markdown("**Pick & Stow Performance** | **April 5th – April 12th, 2026**")
+
+    # Team Summary
+    st.subheader("Team Summary")
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.metric("Managers", "5")
+    with c2:
+        st.metric("Associates", "14")
+    with c3:
+        st.metric("Total Picked", "4,214")
+    with c4:
+        st.metric("Total Stowed", "6,112")
+
+    st.markdown("---")
+
+    # Narossoh Average Productivity
+    st.subheader("Narrossoh Average Productivity")
+    st.caption("Calculated from Narossoh’s total opportunities/defects over the reporting period (32 hours worked)")
+
+    colA, colB = st.columns(2)
+    with colA:
+        st.metric("Total Pick Opportunities", "746")
+        st.metric("Pick Units per Hour", "23.31")
+        st.metric("Pick Defects per Hour", "1.78")
+        st.metric("Pick Defect Rate", "7.64%")
+
+    with colB:
+        st.metric("Total Stow Opportunities", "1,068")
+        st.metric("Stow Units per Hour", "33.38")
+        st.metric("Stow Defects per Hour", "5.12")
+        st.metric("Stow Defect Rate", "15.36%")
+
+    # Bar Charts using Altair
+    st.subheader("Performance Comparison")
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+        st.markdown("**Team Total: Pick vs Stow**")
+        team_data = pd.DataFrame({"Category": ["Picked", "Stowed"], "Total": [4214, 6112]})
+        team_chart = alt.Chart(team_data).mark_bar().encode(
+            x=alt.X("Category:N", sort=None),
+            y=alt.Y("Total:Q", title="Total Opportunities"),
+            color=alt.Color("Category:N", scale=alt.Scale(range=["#636efa", "#00cc96"]))
+        ).properties(height=300)
+        st.altair_chart(team_chart, use_container_width=True)
+
+    with chart_col2:
+        st.markdown("**Narrossoh Productivity (per hour)**")
+        nar_data = pd.DataFrame({"Category": ["Pick Units/Hr", "Stow Units/Hr"], "Rate": [23.31, 33.38]})
+        nar_chart = alt.Chart(nar_data).mark_bar().encode(
+            x=alt.X("Category:N", sort=None),
+            y=alt.Y("Rate:Q", title="Units per Hour"),
+            color=alt.Color("Category:N", scale=alt.Scale(range=["#636efa", "#00cc96"]))
+        ).properties(height=300)
+        st.altair_chart(nar_chart, use_container_width=True)
+
+    st.info("""
+    **Note**: 
+    - Team totals represent the entire group's volume.
+    - Narossoh metrics are based on his actual performance over 32 hours.
+    """)
+
+st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
