@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px   # Required for the bar charts
 
 # ====================== PAGE CONFIG ======================
 st.set_page_config(
@@ -262,6 +263,7 @@ elif page == "⏰ Associate Work Hours & Productivity":
                 "Stow Defects/Hour": "{:.2f}"
             }), use_container_width=True, hide_index=True)
 
+# ====================== IMPROVED TEAM OVERVIEW ======================
 elif page == "📊 Team Overview":
     st.title("📊 Team Overview")
     st.markdown("**Pick & Stow Performance** | **April 5th – April 12th, 2026**")
@@ -280,12 +282,11 @@ elif page == "📊 Team Overview":
 
     st.markdown("---")
 
-    # Narossoh Productivity
+    # Narossoh Average Productivity
     st.subheader("Narrossoh Average Productivity")
-    st.caption("Calculated from Narossoh’s total opportunities/defects over the reporting period")
+    st.caption("Calculated from Narossoh’s total opportunities/defects over the reporting period (32 hours worked)")
 
     colA, colB = st.columns(2)
-
     with colA:
         st.metric("Total Pick Opportunities", "746")
         st.metric("Pick Units per Hour", "23.31")
@@ -298,10 +299,55 @@ elif page == "📊 Team Overview":
         st.metric("Stow Defects per Hour", "5.12")
         st.metric("Stow Defect Rate", "15.36%")
 
+    # Bar Charts
+    st.subheader("Performance Comparison")
+    chart_col1, chart_col2 = st.columns(2)
+
+    with chart_col1:
+        st.markdown("**Team Total: Pick vs Stow**")
+        team_fig = px.bar(
+            x=["Picked", "Stowed"],
+            y=[4214, 6112],
+            text=[4214, 6112],
+            color=["Picked", "Stowed"],
+            color_discrete_sequence=["#636efa", "#00cc96"]
+        )
+        team_fig.update_layout(yaxis_title="Total Opportunities")
+        st.plotly_chart(team_fig, use_container_width=True)
+
+    with chart_col2:
+        st.markdown("**Narrossoh Productivity (per hour)**")
+        nar_fig = px.bar(
+            x=["Pick Units/Hr", "Stow Units/Hr"],
+            y=[23.31, 33.38],
+            text=[23.31, 33.38],
+            color=["Pick", "Stow"],
+            color_discrete_sequence=["#636efa", "#00cc96"]
+        )
+        nar_fig.update_layout(yaxis_title="Units per Hour")
+        st.plotly_chart(nar_fig, use_container_width=True)
+
+    # Estimated Productivity for All Users (assuming 32 hours)
+    st.subheader("Estimated Productivity if All Associates Worked 32 Hours")
+    st.caption("Projected based on each associate's actual defect rate scaled to 32 hours")
+
+    est_data = []
+    for _, row in df_pick_orig.iterrows():
+        est_data.append({
+            "User": row["User"],
+            "Actual Pick Opp": row["Opportunities"],
+            "Est Pick Units (32h)": round(row["Opportunities"] * (746 / 32) / (row["Opportunities"] / 32), 0) if row["Opportunities"] > 0 else 0,
+            "Est Pick Defects (32h)": round(row["Defects"] * (746 / row["Opportunities"]), 0) if row["Opportunities"] > 0 else 0
+        })
+
+    est_df = pd.DataFrame(est_data)
+    st.dataframe(est_df, use_container_width=True, hide_index=True)
+
     st.info("""
     **Note**: 
-    - Pick and Stow totals (4,214 picked / 6,112 stowed) represent the **entire team's** volume.
-    - Productivity rates shown are **Narrossoh’s individual averages**.
+    - Team totals represent the entire group's volume.
+    - Narossoh metrics are based on his actual performance over 32 hours.
+    - Estimated values for other associates are projected using their observed defect rates scaled to 32 hours of work.
     """)
 
 st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
