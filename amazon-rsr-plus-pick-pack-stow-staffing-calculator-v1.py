@@ -57,12 +57,14 @@ are needed to handle a **10% increase in pick orders**.
 st.info(f"""
 **Practical Interpretation:**
 
-- This is equivalent to adding **1 new associate** working roughly **⅔ of a full weekly schedule** (or distributing the extra work across the existing team + a partial new hire).
+- This is equivalent to adding **1 new associate** working roughly **⅔ of a full weekly schedule**  
+  (or distributing the extra work across the existing team + a partial new hire).
 
-- Average weekly opportunities per associate right now: **{avg_opp_per_assoc}** total (≈ **{round(current_pick/num_associates)}** pick-only).
+- Average weekly opportunities per associate right now: **{avg_opp_per_assoc}** total  
+  (≈ **{round(current_pick/num_associates)}** pick-only).
 
 - **No hours data** is available in the source reports, so this calculation is based purely on opportunity volume.  
-  If you provide average hours worked per associate or pick time per opportunity, we can convert this into exact **man-hours** and a more precise shift recommendation.
+  If you provide average hours worked per associate or pick time per opportunity, we can convert this into exact **man-hours**.
 """)
 
 # ====================== DETAILED CALCULATION TABLE ======================
@@ -94,7 +96,7 @@ calc_data = {
 df_calc = pd.DataFrame(calc_data)
 st.dataframe(df_calc, use_container_width=True, hide_index=True)
 
-# ====================== VISUALIZATION ======================
+# ====================== VISUALIZATIONS ======================
 st.subheader("Workload Comparison")
 
 chart_data = pd.DataFrame({
@@ -105,4 +107,24 @@ chart_data = pd.DataFrame({
 bar_chart = alt.Chart(chart_data).mark_bar().encode(
     x=alt.X("Category:N", sort=None, title="Scenario"),
     y=alt.Y("Opportunities:Q", title="Total Opportunities"),
-    color=alt.Color("Category:N
+    color=alt.Color("Category:N", scale=alt.Scale(range=["#636efa", "#ff7f0e"]))
+).properties(height=350)
+
+st.altair_chart(bar_chart, use_container_width=True)
+
+# Pie chart breakdown
+st.subheader("Breakdown of the Increase")
+pie_data = pd.DataFrame({
+    "Type": ["Additional Pick Volume", "Existing Volume"],
+    "Opportunities": [additional_pick, current_total]
+})
+
+pie_chart = alt.Chart(pie_data).mark_arc(innerRadius=60).encode(
+    theta=alt.Theta(field="Opportunities", type="quantitative"),
+    color=alt.Color("Type:N", scale=alt.Scale(range=["#ff7f0e", "#636efa"])),
+    tooltip=["Type", "Opportunities"]
+).properties(height=300)
+
+st.altair_chart(pie_chart, use_container_width=True)
+
+st.caption("Dashboard built with opportunity data from Pick Report and Weekly Spend Report • April 2026")
