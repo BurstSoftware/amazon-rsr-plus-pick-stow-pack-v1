@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ====================== CORE DATA (Pick & Stow) ======================
+# ====================== PICK & STOW DATA ======================
 # Original Pick Data
 pick_data = {
     "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
@@ -33,15 +33,31 @@ stow_data = {
 df_pick_orig = pd.DataFrame(pick_data)
 df_stow_orig = pd.DataFrame(stow_data)
 
-# Normalized Data
-pick_norm_data = { ... }   # (keep the same normalized data as before - omitted for brevity)
-stow_norm_data = { ... }   # (keep the same normalized data as before)
+# Normalized Data (for Updated tabs)
+pick_norm_data = {
+    "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
+             "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
+             "nkaibrah", "matstrak", "abdiosmg", "musaom"],
+    "Original_Defects": [57, 14, 13, 13, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2],
+    "Original_Opp": [746, 804, 169, 614, 214, 208, 110, 362, 68, 176, 69, 97, 37, 255, 186, 44, 55],
+    "New_Defects": [57, 13, 57, 16, 28, 29, 47, 14, 66, 25, 54, 38, 81, 12, 12, 51, 27],
+    "DPMO": [76408, 17426, 76408, 21448, 37534, 38874, 63003, 18767, 88472, 33512, 72386, 50938, 108579, 16086, 16086, 68365, 36193]
+}
+
+stow_norm_data = {
+    "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
+             "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
+             "abdiosmg", "jnoonoor", "arrizola"],
+    "Original_Defects": [164, 130, 117, 94, 45, 37, 22, 17, 15, 13, 12, 12, 9, 7, 4, 3, 3],
+    "Original_Opp": [1068, 758, 330, 668, 246, 445, 168, 518, 580, 594, 416, 204, 308, 127, 214, 63, 57],
+    "New_Defects": [164, 183, 379, 150, 195, 89, 140, 35, 28, 23, 31, 63, 31, 59, 20, 51, 56],
+    "DPMO": [153558, 171348, 354869, 140449, 182584, 83333, 131086, 32772, 26217, 21536, 29026, 58989, 29026, 55243, 18727, 47753, 52434]
+}
 
 df_pick_norm = pd.DataFrame(pick_norm_data)
 df_stow_norm = pd.DataFrame(stow_norm_data)
 
 # ====================== WORK HOURS DATA ======================
-# Only narossoh has hours data for now. Others will show "No data available"
 hours_data = {
     "User": ["narossoh"] * 8,
     "Date": ["2026-04-05", "2026-04-05", "2026-04-06", "2026-04-06", "2026-04-09", "2026-04-09", 
@@ -53,7 +69,6 @@ hours_data = {
 }
 df_hours = pd.DataFrame(hours_data)
 
-# All users list for filter
 all_users = sorted(df_pick_orig["User"].unique())
 
 # ====================== SIDEBAR ======================
@@ -65,18 +80,83 @@ page = st.sidebar.radio("Go to:",
      "👥 3-Associate Comparison",
      "⏰ Associate Work Hours & Productivity"])
 
-# ====================== PAGES ======================
+# ====================== MAIN PAGES ======================
 if page == "🏠 Home & Summary":
-    # ... (keep unchanged)
+    st.title("📦 Warehouse Pick & Stow Performance Dashboard")
+    st.markdown("**April 5th – April 12th, 2026** | Amazon RSR+ Analysis")
+    
+    st.markdown("### Report Summary & Explanation")
+    st.info("""
+    This dashboard contains both **original** and **updated/normalized** versions of the Pick and Stow reports.
+    
+    **Key Update Performed:**
+    - We normalized all associates to **narossoh’s opportunity volume** (746 in Pick, 1,068 in Stow).
+    - Defects were scaled proportionally while keeping each associate’s individual error rate (DPMO) constant.
+    - This allows fair quality comparison regardless of volume worked.
+    """)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Total Associates", 17)
+        st.metric("Original Pick Opportunities", "4,214")
+    with col2:
+        st.metric("Original Stow Opportunities", "6,112")
 
 elif page == "📦 Pick Report":
-    # ... (keep unchanged)
+    st.title("📦 Pick Report Analysis")
+    tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
+    
+    with tab1:
+        st.subheader("Original Pick Report")
+        st.dataframe(df_pick_orig.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    
+    with tab2:
+        st.subheader("Updated Pick Report – All at narossoh’s 746 Opportunities")
+        st.markdown("**Explanation**: Every associate now has the same number of opportunities as narossoh (746). Defects scaled proportionally based on their original error rate.")
+        st.dataframe(df_pick_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
 
 elif page == "📦 Stow Report":
-    # ... (keep unchanged)
+    st.title("📦 Stow Report Analysis")
+    tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
+    
+    with tab1:
+        st.subheader("Original Stow Report")
+        st.dataframe(df_stow_orig.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    
+    with tab2:
+        st.subheader("Updated Stow Report – All at narossoh’s 1,068 Opportunities")
+        st.markdown("**Explanation**: Every associate now has the same number of opportunities as narossoh (1,068). Defects scaled proportionally based on their original error rate.")
+        st.dataframe(df_stow_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
 
 elif page == "👥 3-Associate Comparison":
-    # ... (keep unchanged)
+    st.title("👥 Focused Comparison: narossoh vs elizev vs arrizola")
+    
+    st.subheader("Original Data")
+    comparison_original = pd.DataFrame({
+        "Report": ["Pick", "Pick", "Pick", "Stow", "Stow", "Stow"],
+        "User": ["narossoh", "elizev", "arrizola", "narossoh", "elizev", "arrizola"],
+        "Opportunities": [746, 176, 614, 1068, 204, 57],
+        "Defects": [57, 6, 13, 164, 12, 3],
+        "DPMO": [76408, 33512, 21448, 153558, 58989, 52434]
+    })
+    st.dataframe(comparison_original, use_container_width=True, hide_index=True)
+    
+    st.subheader("Updated (Normalized to narossoh’s Volume)")
+    comparison_updated = pd.DataFrame({
+        "Report": ["Pick", "Pick", "Pick", "Stow", "Stow", "Stow"],
+        "User": ["narossoh", "elizev", "arrizola", "narossoh", "elizev", "arrizola"],
+        "Opportunities": [746, 746, 746, 1068, 1068, 1068],
+        "Defects": [57, 25, 16, 164, 63, 56],
+        "DPMO": [76408, 33512, 21448, 153558, 58989, 52434]
+    })
+    st.dataframe(comparison_updated, use_container_width=True, hide_index=True)
+
+    st.subheader("Full List – All Associates (Normalized to narossoh)")
+    st.markdown("**Pick Report (All at 746 opportunities)**")
+    st.dataframe(df_pick_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    
+    st.markdown("**Stow Report (All at 1,068 opportunities)**")
+    st.dataframe(df_stow_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
 
 elif page == "⏰ Associate Work Hours & Productivity":
     st.title("⏰ Associate Work Hours & Productivity")
@@ -87,12 +167,12 @@ elif page == "⏰ Associate Work Hours & Productivity":
 
     st.subheader(f"Work Hours & Productivity for **{selected_user}**")
 
-    # Filter hours data for selected user
+    # Filter hours data
     user_hours = df_hours[df_hours["User"] == selected_user]
 
     if user_hours.empty:
         st.warning(f"No work hours data available for **{selected_user}** yet.")
-        st.info("Currently, detailed work hours are only loaded for **narossoh**. Other associates will be added as data becomes available.")
+        st.info("Currently, detailed work hours are only available for **narossoh**. Other associates will be added later.")
     else:
         st.subheader("Raw Work Hours Log")
         st.dataframe(user_hours[["Date", "Day", "Start Time", "End Time", "Hours Worked"]], 
@@ -112,11 +192,12 @@ elif page == "⏰ Associate Work Hours & Productivity":
         # Productivity Calculations
         total_hours = user_hours["Hours Worked"].sum()
 
-        # Get pick & stow data for the user
-        user_pick = df_pick_orig[df_pick_orig["User"] == selected_user].iloc[0]
-        user_stow = df_stow_orig[df_stow_orig["User"] == selected_user].iloc[0] if selected_user in df_stow_orig["User"].values else None
+        # Get user's pick and stow data
+        user_pick_row = df_pick_orig[df_pick_orig["User"] == selected_user]
+        user_stow_row = df_stow_orig[df_stow_orig["User"] == selected_user]
 
-        if user_pick is not None:
+        if not user_pick_row.empty:
+            user_pick = user_pick_row.iloc[0]
             pick_opp = user_pick["Opportunities"]
             pick_def = user_pick["Defects"]
             pick_per_hour = round(pick_opp / total_hours, 2) if total_hours > 0 else 0
@@ -132,10 +213,11 @@ elif page == "⏰ Associate Work Hours & Productivity":
                 st.metric("Total Pick Opportunities", int(pick_opp))
                 st.metric("Pick Units per Hour", f"{pick_per_hour}")
                 st.metric("Pick Defects per Hour", f"{pick_def_per_hour}")
-                st.metric("Pick Defect Rate", f"{(pick_def / pick_opp * 100):.2f}%" if pick_opp > 0 else "N/A")
+                st.metric("Pick Defect Rate (%)", f"{(pick_def / pick_opp * 100):.2f}" if pick_opp > 0 else "N/A")
 
             with col2:
-                if user_stow is not None:
+                if not user_stow_row.empty:
+                    user_stow = user_stow_row.iloc[0]
                     stow_opp = user_stow["Opportunities"]
                     stow_def = user_stow["Defects"]
                     stow_per_hour = round(stow_opp / total_hours, 2) if total_hours > 0 else 0
@@ -144,16 +226,16 @@ elif page == "⏰ Associate Work Hours & Productivity":
                     st.metric("Total Stow Opportunities", int(stow_opp))
                     st.metric("Stow Units per Hour", f"{stow_per_hour}")
                     st.metric("Stow Defects per Hour", f"{stow_def_per_hour}")
-                    st.metric("Stow Defect Rate", f"{(stow_def / stow_opp * 100):.2f}%" if stow_opp > 0 else "N/A")
+                    st.metric("Stow Defect Rate (%)", f"{(stow_def / stow_opp * 100):.2f}" if stow_opp > 0 else "N/A")
                 else:
                     st.info("No Stow data available for this associate.")
 
-            # Per-day productivity (using average rates)
+            # Per-day productivity table
             st.subheader("Per-Day Productivity (Average Rates)")
             daily_prod = daily_hours.copy()
             daily_prod["Pick Units/Hour"] = pick_per_hour
             daily_prod["Pick Defects/Hour"] = pick_def_per_hour
-            if user_stow is not None:
+            if not user_stow_row.empty:
                 daily_prod["Stow Units/Hour"] = stow_per_hour
                 daily_prod["Stow Defects/Hour"] = stow_def_per_hour
 
@@ -165,4 +247,4 @@ elif page == "⏰ Associate Work Hours & Productivity":
                 "Stow Defects/Hour": "{:.2f}"
             }), use_container_width=True, hide_index=True)
 
-st.caption("Dashboard built for Amazon RSR+ Pick & Stow Analysis")
+st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
