@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px   # Required for the bar charts
+import altair as alt
 
 # ====================== PAGE CONFIG ======================
 st.set_page_config(
@@ -263,7 +263,7 @@ elif page == "⏰ Associate Work Hours & Productivity":
                 "Stow Defects/Hour": "{:.2f}"
             }), use_container_width=True, hide_index=True)
 
-# ====================== IMPROVED TEAM OVERVIEW ======================
+# ====================== TEAM OVERVIEW WITH ALTAIR CHARTS ======================
 elif page == "📊 Team Overview":
     st.title("📊 Team Overview")
     st.markdown("**Pick & Stow Performance** | **April 5th – April 12th, 2026**")
@@ -299,33 +299,36 @@ elif page == "📊 Team Overview":
         st.metric("Stow Defects per Hour", "5.12")
         st.metric("Stow Defect Rate", "15.36%")
 
-    # Bar Charts
+    # Altair Bar Charts
     st.subheader("Performance Comparison")
+
     chart_col1, chart_col2 = st.columns(2)
 
     with chart_col1:
         st.markdown("**Team Total: Pick vs Stow**")
-        team_fig = px.bar(
-            x=["Picked", "Stowed"],
-            y=[4214, 6112],
-            text=[4214, 6112],
-            color=["Picked", "Stowed"],
-            color_discrete_sequence=["#636efa", "#00cc96"]
-        )
-        team_fig.update_layout(yaxis_title="Total Opportunities")
-        st.plotly_chart(team_fig, use_container_width=True)
+        team_data = pd.DataFrame({
+            "Category": ["Picked", "Stowed"],
+            "Total": [4214, 6112]
+        })
+        team_chart = alt.Chart(team_data).mark_bar().encode(
+            x=alt.X("Category:N", sort=None),
+            y=alt.Y("Total:Q", title="Total Opportunities"),
+            color=alt.Color("Category:N", scale=alt.Scale(range=["#636efa", "#00cc96"]))
+        ).properties(height=300)
+        st.altair_chart(team_chart, use_container_width=True)
 
     with chart_col2:
         st.markdown("**Narrossoh Productivity (per hour)**")
-        nar_fig = px.bar(
-            x=["Pick Units/Hr", "Stow Units/Hr"],
-            y=[23.31, 33.38],
-            text=[23.31, 33.38],
-            color=["Pick", "Stow"],
-            color_discrete_sequence=["#636efa", "#00cc96"]
-        )
-        nar_fig.update_layout(yaxis_title="Units per Hour")
-        st.plotly_chart(nar_fig, use_container_width=True)
+        nar_data = pd.DataFrame({
+            "Category": ["Pick Units/Hr", "Stow Units/Hr"],
+            "Rate": [23.31, 33.38]
+        })
+        nar_chart = alt.Chart(nar_data).mark_bar().encode(
+            x=alt.X("Category:N", sort=None),
+            y=alt.Y("Rate:Q", title="Units per Hour"),
+            color=alt.Color("Category:N", scale=alt.Scale(range=["#636efa", "#00cc96"]))
+        ).properties(height=300)
+        st.altair_chart(nar_chart, use_container_width=True)
 
     # Estimated Productivity for All Users (assuming 32 hours)
     st.subheader("Estimated Productivity if All Associates Worked 32 Hours")
