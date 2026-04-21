@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 
 # ====================== PAGE CONFIG ======================
 st.set_page_config(
@@ -299,37 +298,12 @@ elif page == "📊 Team Overview":
         st.metric("Stow Defects per Hour", "5.12")
         st.metric("Stow Defect Rate", "15.36%")
 
-    # Pie Charts for Narossoh Productivity
-    st.subheader("Narrossoh Productivity Breakdown (Opportunities vs Defects)")
-
-    col_chart1, col_chart2 = st.columns(2)
-
-    with col_chart1:
-        st.markdown("**Pick Productivity**")
-        pick_good = 746 - 57
-        pick_fig = px.pie(
-            names=["Good Units", "Defects"],
-            values=[pick_good, 57],
-            title="Pick: 746 Opportunities",
-            color_discrete_sequence=["#00cc96", "#ef553b"]
-        )
-        st.plotly_chart(pick_fig, use_container_width=True)
-
-    with col_chart2:
-        st.markdown("**Stow Productivity**")
-        stow_good = 1068 - 164
-        stow_fig = px.pie(
-            names=["Good Units", "Defects"],
-            values=[stow_good, 164],
-            title="Stow: 1,068 Opportunities",
-            color_discrete_sequence=["#00cc96", "#ef553b"]
-        )
-        st.plotly_chart(stow_fig, use_container_width=True)
-
     st.info("""
     **Note**: 
     - Pick and Stow totals (4,214 picked / 6,112 stowed) represent the **entire team's** volume.
-    - Pie charts show Narossoh’s individual performance (Good Units vs Defects).
+    - Productivity rates shown are **Narrossoh’s individual averages**.
     """)
+
+    st.success("✅ Pie charts will appear automatically once Plotly is installed on redeploy.")
 
 st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
