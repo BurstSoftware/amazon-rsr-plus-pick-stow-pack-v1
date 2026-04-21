@@ -58,7 +58,7 @@ stow_norm_data = {
 df_pick_norm = pd.DataFrame(pick_norm_data)
 df_stow_norm = pd.DataFrame(stow_norm_data)
 
-# ====================== WORK HOURS DATA (FIXED) ======================
+# ====================== WORK HOURS DATA ======================
 hours_data = {
     "User": ["narossoh"] * 8,
     "Date": ["2026-04-05", "2026-04-05", "2026-04-06", "2026-04-06", "2026-04-09", "2026-04-09", 
@@ -341,25 +341,25 @@ elif page == "💰 Payroll Overview":
     with col1:
         st.metric("Managers", "5")
         st.metric("Hours per Manager", "40")
-    with col2:
         st.metric("Hourly Rate", "$22.50")
+    with col2:
         st.metric("Total Manager Cost", f"${manager_total:,.2f}")
 
     st.markdown("---")
 
     st.subheader("Associate Payroll")
-    st.info("14 Associates × ~19 hours (period total)")
+    st.info("14 Associates × ~19 hours × $19.00/hour")
 
     associate_total_hours = 14 * 19
-    associate_hourly_rate = 18.00   # Adjust if needed
+    associate_hourly_rate = 19.00
     associate_total = associate_total_hours * associate_hourly_rate
 
     col3, col4 = st.columns(2)
     with col3:
         st.metric("Associates", "14")
         st.metric("Average Hours per Associate", "19")
+        st.metric("Hourly Rate", "$19.00")
     with col4:
-        st.metric("Estimated Hourly Rate", f"${associate_hourly_rate:.2f}")
         st.metric("Total Associate Cost", f"${associate_total:,.2f}")
 
     st.markdown("---")
@@ -385,10 +385,9 @@ elif page == "💰 Payroll Overview":
 
     st.info("""
     **Notes**: 
-    - Manager rate: $22.50 per hour for 40 hours.
-    - Associate hours: Approximate 19 hours per associate for the week of April 5–12.
-    - Associate hourly rate is estimated at $18.00 (you can adjust this value in the code).
-    - This is an estimate based on the provided assumptions.
+    - Managers: $22.50 per hour for 40 hours each.
+    - Associates: $19.00 per hour for approximately 19 hours each.
+    - This is an estimate based on the provided assumptions for the period April 5th – April 12th.
     """)
 
 st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
