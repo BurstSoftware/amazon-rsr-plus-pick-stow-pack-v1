@@ -32,16 +32,42 @@ stow_data = {
 df_pick_orig = pd.DataFrame(pick_data)
 df_stow_orig = pd.DataFrame(stow_data)
 
-# Normalized Data
-pick_norm_data = { ... }  # Keep your existing normalized data here
-stow_norm_data = { ... }  # Keep your existing normalized data here
+# Normalized Data (unchanged)
+pick_norm_data = {
+    "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
+             "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
+             "nkaibrah", "matstrak", "abdiosmg", "musaom"],
+    "Original_Defects": [57, 14, 13, 13, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2],
+    "Original_Opp": [746, 804, 169, 614, 214, 208, 110, 362, 68, 176, 69, 97, 37, 255, 186, 44, 55],
+    "New_Defects": [57, 13, 57, 16, 28, 29, 47, 14, 66, 25, 54, 38, 81, 12, 12, 51, 27],
+    "DPMO": [76408, 17426, 76408, 21448, 37534, 38874, 63003, 18767, 88472, 33512, 72386, 50938, 108579, 16086, 16086, 68365, 36193]
+}
+
+stow_norm_data = {
+    "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
+             "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
+             "abdiosmg", "jnoonoor", "arrizola"],
+    "Original_Defects": [164, 130, 117, 94, 45, 37, 22, 17, 15, 13, 12, 12, 9, 7, 4, 3, 3],
+    "Original_Opp": [1068, 758, 330, 668, 246, 445, 168, 518, 580, 594, 416, 204, 308, 127, 214, 63, 57],
+    "New_Defects": [164, 183, 379, 150, 195, 89, 140, 35, 28, 23, 31, 63, 31, 59, 20, 51, 56],
+    "DPMO": [153558, 171348, 354869, 140449, 182584, 83333, 131086, 32772, 26217, 21536, 29026, 58989, 29026, 55243, 18727, 47753, 52434]
+}
 
 df_pick_norm = pd.DataFrame(pick_norm_data)
 df_stow_norm = pd.DataFrame(stow_norm_data)
 
-# ====================== WORK HOURS & SPEND DATA ======================
-hours_data = { ... }  # Keep your existing hours data
+# ====================== WORK HOURS DATA ======================
+hours_data = {
+    "User": ["narossoh"] * 8,
+    "Date": ["2026-04-05", "2026-04-05", "2026-04-06", "2026-04-06", "2026-04-09", "2026-04-09", 
+             "2026-04-10", "2026-04-11"],
+    "Day": ["Sunday", "Sunday", "Monday", "Monday", "Thursday", "Thursday", "Friday", "Saturday"],
+    "Start Time": ["19:00", "19:00", "19:00", "19:00", "19:00", "19:00", "19:00", "14:30"],
+    "End Time": ["23:00", "23:00", "23:00", "23:00", "23:00", "23:00", "23:00", "18:30"],
+    "Hours Worked": [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
+}
 df_hours = pd.DataFrame(hours_data)
+
 all_users = sorted(df_pick_orig["User"].unique())
 
 # ====================== WEEKLY SPEND DATA (UPDATED) ======================
@@ -49,7 +75,7 @@ spend_data = {
     "User": ["narossoh", "gpliegom", "stajenni", "iqrayuss", "matstrak", "nkaibrah", "mnimhas", 
              "arrizola", "hasnsai", "uiyps", "mtiband r", "elizev", "danijac", "hersmary", 
              "abdiosmg", "jnoonoor", "musaom"],
-    "Pick Opportunities": [0, 362, 804, 37, 186, 255, 97, 614, 214, 208, 68, 176, 169, 69, 44, 110, 55],
+    "Pick Opportunities": [746, 362, 804, 37, 186, 255, 97, 614, 214, 208, 68, 176, 169, 69, 44, 110, 55],  # narossoh confirmed as 746
     "Stow Opportunities": [1068, 580, 127, 758, 594, 518, 668, 57, 416, 330, 445, 204, 168, 246, 214, 63, 0],
     "Total Opportunities": [1814, 942, 931, 795, 780, 773, 765, 671, 630, 538, 513, 380, 337, 315, 258, 173, 55],
     "% of Total Volume": [17.00, 8.83, 8.73, 7.45, 7.31, 7.24, 7.17, 6.29, 5.90, 5.04, 4.81, 3.56, 3.16, 2.95, 2.42, 1.62, 0.52],
@@ -58,7 +84,7 @@ spend_data = {
 
 df_spend = pd.DataFrame(spend_data)
 
-# === ALL REQUESTED UPDATES ===
+# === ALL UPDATES APPLIED ===
 df_spend = df_spend.rename(columns={"Estimated Spend": "Estimated Value"})
 
 # Value per 32h (Ratio)
@@ -68,12 +94,17 @@ if narossoh_mask.any():
     nar_value = df_spend.loc[narossoh_mask, "Estimated Value"].iloc[0]
     df_spend.loc[narossoh_mask, "Value per 32h (Ratio)"] = f"${nar_value:,.2f}"
 
-# New: Value per Hour = $50.75 for narossoh
+# Value per Hour = $50.75
 df_spend["Value per Hour"] = ""
 if narossoh_mask.any():
     df_spend.loc[narossoh_mask, "Value per Hour"] = "$50.75"
 
-# Equivalent Associates (from previous request)
+# New: Cost per Hour = $19.00 for narossoh only
+df_spend["Cost per Hour"] = ""
+if narossoh_mask.any():
+    df_spend.loc[narossoh_mask, "Cost per Hour"] = "$19.00"
+
+# Equivalent Associates
 df_spend["Equivalent Associates"] = ""
 if narossoh_mask.any():
     df_spend.loc[narossoh_mask, "Equivalent Associates"] = "2.97×"
@@ -87,12 +118,19 @@ df_spend = df_spend[[
     "% of Total Volume", 
     "Estimated Value", 
     "Value per 32h (Ratio)",
-    "Value per Hour",           # ← New column
+    "Value per Hour",
+    "Cost per Hour",           # ← New column
     "Equivalent Associates"
 ]]
 
 # ====================== PACKING DATA ======================
-packing_data = { ... }  # Keep your packing data
+packing_data = {
+    "Activity": ["Packing Items", "Trickling Packages"],
+    "Items/Packages": [88, 88],
+    "Time (minutes)": [47, 10],
+    "Rate (per minute)": [88/47, 88/10],
+    "Rate (per hour)": [(88/47)*60, (88/10)*60]
+}
 df_packing = pd.DataFrame(packing_data)
 
 # ====================== SIDEBAR ======================
@@ -182,9 +220,10 @@ elif page == "💰 Weekly Spend by Associate":
 
     st.info("""
     **Ratio Columns Explanation:**
-    - **Value per 32h (Ratio)**: narossoh’s full Estimated Value (based on 32 hours)
-    - **Value per Hour**: $50.75 per hour worked (only for narossoh)
-    - **Equivalent Associates**: narossoh = 2.97 average associates
+    - **Value per 32h (Ratio)**: narossoh’s full Estimated Value
+    - **Value per Hour**: $50.75
+    - **Cost per Hour**: $19.00 (only for narossoh)
+    - **Equivalent Associates**: 2.97×
     """)
 
 elif page == "⏱️ Narossoh Packing Time Calculator":
