@@ -32,7 +32,7 @@ stow_data = {
 df_pick_orig = pd.DataFrame(pick_data)
 df_stow_orig = pd.DataFrame(stow_data)
 
-# Normalized Data (unchanged)
+# Normalized Data
 pick_norm_data = {
     "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
              "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
@@ -56,26 +56,12 @@ stow_norm_data = {
 df_pick_norm = pd.DataFrame(pick_norm_data)
 df_stow_norm = pd.DataFrame(stow_norm_data)
 
-# ====================== WORK HOURS DATA ======================
-hours_data = {
-    "User": ["narossoh"] * 8,
-    "Date": ["2026-04-05", "2026-04-05", "2026-04-06", "2026-04-06", "2026-04-09", "2026-04-09", 
-             "2026-04-10", "2026-04-11"],
-    "Day": ["Sunday", "Sunday", "Monday", "Monday", "Thursday", "Thursday", "Friday", "Saturday"],
-    "Start Time": ["19:00", "19:00", "19:00", "19:00", "19:00", "19:00", "19:00", "14:30"],
-    "End Time": ["23:00", "23:00", "23:00", "23:00", "23:00", "23:00", "23:00", "18:30"],
-    "Hours Worked": [4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]
-}
-df_hours = pd.DataFrame(hours_data)
-
-all_users = sorted(df_pick_orig["User"].unique())
-
-# ====================== WEEKLY SPEND DATA (UPDATED) ======================
+# ====================== WEEKLY SPEND DATA (FULLY UPDATED) ======================
 spend_data = {
     "User": ["narossoh", "gpliegom", "stajenni", "iqrayuss", "matstrak", "nkaibrah", "mnimhas", 
              "arrizola", "hasnsai", "uiyps", "mtiband r", "elizev", "danijac", "hersmary", 
              "abdiosmg", "jnoonoor", "musaom"],
-    "Pick Opportunities": [746, 362, 804, 37, 186, 255, 97, 614, 214, 208, 68, 176, 169, 69, 44, 110, 55],  # narossoh confirmed as 746
+    "Pick Opportunities": [746, 362, 804, 37, 186, 255, 97, 614, 214, 208, 68, 176, 169, 69, 44, 110, 55],
     "Stow Opportunities": [1068, 580, 127, 758, 594, 518, 668, 57, 416, 330, 445, 204, 168, 246, 214, 63, 0],
     "Total Opportunities": [1814, 942, 931, 795, 780, 773, 765, 671, 630, 538, 513, 380, 337, 315, 258, 173, 55],
     "% of Total Volume": [17.00, 8.83, 8.73, 7.45, 7.31, 7.24, 7.17, 6.29, 5.90, 5.04, 4.81, 3.56, 3.16, 2.95, 2.42, 1.62, 0.52],
@@ -84,27 +70,33 @@ spend_data = {
 
 df_spend = pd.DataFrame(spend_data)
 
-# === ALL UPDATES APPLIED ===
+# === ALL REQUESTED UPDATES ===
 df_spend = df_spend.rename(columns={"Estimated Spend": "Estimated Value"})
 
-# Value per 32h (Ratio)
-df_spend["Value per 32h (Ratio)"] = ""
 narossoh_mask = df_spend["User"] == "narossoh"
+
+# 1. Value per 32h
+df_spend["Value per 32h (Ratio)"] = ""
 if narossoh_mask.any():
     nar_value = df_spend.loc[narossoh_mask, "Estimated Value"].iloc[0]
     df_spend.loc[narossoh_mask, "Value per 32h (Ratio)"] = f"${nar_value:,.2f}"
 
-# Value per Hour = $50.75
+# 2. Value per Hour
 df_spend["Value per Hour"] = ""
 if narossoh_mask.any():
     df_spend.loc[narossoh_mask, "Value per Hour"] = "$50.75"
 
-# New: Cost per Hour = $19.00 for narossoh only
+# 3. Cost per Hour
 df_spend["Cost per Hour"] = ""
 if narossoh_mask.any():
     df_spend.loc[narossoh_mask, "Cost per Hour"] = "$19.00"
 
-# Equivalent Associates
+# 4. Total Weekly Hours Worked (NEW)
+df_spend["Total Weekly Hours Worked"] = ""
+if narossoh_mask.any():
+    df_spend.loc[narossoh_mask, "Total Weekly Hours Worked"] = "32"
+
+# 5. Equivalent Associates
 df_spend["Equivalent Associates"] = ""
 if narossoh_mask.any():
     df_spend.loc[narossoh_mask, "Equivalent Associates"] = "2.97×"
@@ -119,7 +111,8 @@ df_spend = df_spend[[
     "Estimated Value", 
     "Value per 32h (Ratio)",
     "Value per Hour",
-    "Cost per Hour",           # ← New column
+    "Cost per Hour",
+    "Total Weekly Hours Worked",     # ← New Column
     "Equivalent Associates"
 ]]
 
@@ -176,7 +169,6 @@ elif page == "💰 Weekly Spend by Associate":
     st.title("💰 Weekly Spend by Associate")
     st.markdown("**April 5th – April 12th, 2026** | Based on Total Opportunities (Pick + Stow)")
 
-    # Key Metrics
     st.subheader("🔑 Key Metrics")
     col1, col2, col3, col4 = st.columns(4)
     with col1:
@@ -220,10 +212,11 @@ elif page == "💰 Weekly Spend by Associate":
 
     st.info("""
     **Ratio Columns Explanation:**
-    - **Value per 32h (Ratio)**: narossoh’s full Estimated Value
-    - **Value per Hour**: $50.75
-    - **Cost per Hour**: $19.00 (only for narossoh)
-    - **Equivalent Associates**: 2.97×
+    - Value per 32h (Ratio): narossoh’s full Estimated Value
+    - Value per Hour: $50.75
+    - Cost per Hour: $19.00
+    - **Total Weekly Hours Worked**: 32 hours (only for narossoh)
+    - Equivalent Associates: 2.97×
     """)
 
 elif page == "⏱️ Narossoh Packing Time Calculator":
