@@ -11,7 +11,6 @@ st.set_page_config(
 )
 
 # ====================== PICK & STOW DATA ======================
-# Original Pick Data
 pick_data = {
     "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
              "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
@@ -21,7 +20,6 @@ pick_data = {
     "DPMO": [76408, 17412, 76923, 21172, 37383, 38461, 63636, 19337, 88235, 34090, 72463, 51546, 108108, 15686, 16129, 68181, 36363]
 }
 
-# Original Stow Data
 stow_data = {
     "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
              "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
@@ -34,9 +32,26 @@ stow_data = {
 df_pick_orig = pd.DataFrame(pick_data)
 df_stow_orig = pd.DataFrame(stow_data)
 
-# Normalized Data (unchanged)
-pick_norm_data = { ... }   # (keeping your original normalized data)
-stow_norm_data = { ... }   # (keeping your original normalized data)
+# Normalized Data
+pick_norm_data = {
+    "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
+             "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
+             "nkaibrah", "matstrak", "abdiosmg", "musaom"],
+    "Original_Defects": [57, 14, 13, 13, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2],
+    "Original_Opp": [746, 804, 169, 614, 214, 208, 110, 362, 68, 176, 69, 97, 37, 255, 186, 44, 55],
+    "New_Defects": [57, 13, 57, 16, 28, 29, 47, 14, 66, 25, 54, 38, 81, 12, 12, 51, 27],
+    "DPMO": [76408, 17426, 76408, 21448, 37534, 38874, 63003, 18767, 88472, 33512, 72386, 50938, 108579, 16086, 16086, 68365, 36193]
+}
+
+stow_norm_data = {
+    "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
+             "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
+             "abdiosmg", "jnoonoor", "arrizola"],
+    "Original_Defects": [164, 130, 117, 94, 45, 37, 22, 17, 15, 13, 12, 12, 9, 7, 4, 3, 3],
+    "Original_Opp": [1068, 758, 330, 668, 246, 445, 168, 518, 580, 594, 416, 204, 308, 127, 214, 63, 57],
+    "New_Defects": [164, 183, 379, 150, 195, 89, 140, 35, 28, 23, 31, 63, 31, 59, 20, 51, 56],
+    "DPMO": [153558, 171348, 354869, 140449, 182584, 83333, 131086, 32772, 26217, 21536, 29026, 58989, 29026, 55243, 18727, 47753, 52434]
+}
 
 df_pick_norm = pd.DataFrame(pick_norm_data)
 df_stow_norm = pd.DataFrame(stow_norm_data)
@@ -69,23 +84,22 @@ spend_data = {
 
 df_spend = pd.DataFrame(spend_data)
 
-# === APPLIED UPDATES ===
+# === REQUESTED UPDATES ===
 df_spend = df_spend.rename(columns={"Estimated Spend": "Estimated Value"})
 
-# Add ratio column - only for narossoh based on 32 hours
 df_spend["Value per 32h (Ratio)"] = ""
 narossoh_mask = df_spend["User"] == "narossoh"
 if narossoh_mask.any():
     nar_value = df_spend.loc[narossoh_mask, "Estimated Value"].iloc[0]
     df_spend.loc[narossoh_mask, "Value per 32h (Ratio)"] = f"${nar_value:,.2f}"
 
-# Reorder columns for better table display
+# Reorder columns
 df_spend = df_spend[[
     "User", "Pick Opportunities", "Stow Opportunities", "Total Opportunities",
     "% of Total Volume", "Estimated Value", "Value per 32h (Ratio)"
 ]]
 
-# ====================== NAROSSOH PACKING DATA ======================
+# ====================== PACKING DATA ======================
 packing_data = {
     "Activity": ["Packing Items", "Trickling Packages"],
     "Items/Packages": [88, 88],
@@ -109,7 +123,34 @@ page = st.sidebar.radio("Go to:",
      "⏱️ Narossoh Packing Time Calculator"])
 
 # ====================== MAIN PAGES ======================
-# ... (All other pages remain unchanged) ...
+if page == "🏠 Home & Summary":
+    st.title("📦 Warehouse Pick & Stow Performance Dashboard")
+    st.markdown("**April 5th – April 12th, 2026** | Amazon RSR+ Analysis")
+    st.info("This dashboard contains both original and normalized Pick & Stow reports.")
+
+elif page == "📦 Pick Report":
+    # (Your original Pick Report code - unchanged)
+    st.title("📦 Pick Report Analysis")
+    tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
+    with tab1:
+        st.subheader("Original Pick Report")
+        st.dataframe(df_pick_orig.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    with tab2:
+        st.subheader("Updated Pick Report")
+        st.dataframe(df_pick_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+
+elif page == "📦 Stow Report":
+    # (Your original Stow Report code - unchanged)
+    st.title("📦 Stow Report Analysis")
+    tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
+    with tab1:
+        st.subheader("Original Stow Report")
+        st.dataframe(df_stow_orig.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    with tab2:
+        st.subheader("Updated Stow Report")
+        st.dataframe(df_stow_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+
+# ... Add your other pages here if needed (3-Associate, Work Hours, etc.) ...
 
 elif page == "💰 Weekly Spend by Associate":
     st.title("💰 Weekly Spend by Associate")
@@ -149,9 +190,14 @@ elif page == "💰 Weekly Spend by Associate":
 
     st.info("""
     **Updates Applied:**
-    - Column **Estimated Spend** renamed to **Estimated Value**
-    - New column **Value per 32h (Ratio)** added — only **narossoh** shows his full value (based on 32 hours). All other associates are blank.
+    - **Estimated Spend** renamed to **Estimated Value**
+    - New column **Value per 32h (Ratio)** added (only narossoh is populated)
     """)
+
+elif page == "⏱️ Narossoh Packing Time Calculator":
+    # (Your packing calculator code - unchanged)
+    st.title("⏱️ Narossoh Packing Time Calculator")
+    st.dataframe(df_packing, use_container_width=True, hide_index=True)
 
 # Final caption
 st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
