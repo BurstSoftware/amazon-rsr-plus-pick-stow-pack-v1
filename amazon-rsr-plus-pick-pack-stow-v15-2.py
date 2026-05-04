@@ -87,16 +87,23 @@ df_spend = pd.DataFrame(spend_data)
 # === REQUESTED UPDATES ===
 df_spend = df_spend.rename(columns={"Estimated Spend": "Estimated Value"})
 
+# Value per 32h (Ratio) - only for narossoh
 df_spend["Value per 32h (Ratio)"] = ""
 narossoh_mask = df_spend["User"] == "narossoh"
 if narossoh_mask.any():
     nar_value = df_spend.loc[narossoh_mask, "Estimated Value"].iloc[0]
     df_spend.loc[narossoh_mask, "Value per 32h (Ratio)"] = f"${nar_value:,.2f}"
 
+# New: Equivalent Associates (from your data)
+df_spend["Equivalent Associates"] = ""
+if narossoh_mask.any():
+    df_spend.loc[narossoh_mask, "Equivalent Associates"] = "2.97×"
+
 # Reorder columns
 df_spend = df_spend[[
     "User", "Pick Opportunities", "Stow Opportunities", "Total Opportunities",
-    "% of Total Volume", "Estimated Value", "Value per 32h (Ratio)"
+    "% of Total Volume", "Estimated Value", "Value per 32h (Ratio)", 
+    "Equivalent Associates"
 ]]
 
 # ====================== PACKING DATA ======================
@@ -129,7 +136,6 @@ if page == "🏠 Home & Summary":
     st.info("This dashboard contains both original and normalized Pick & Stow reports.")
 
 elif page == "📦 Pick Report":
-    # (Your original Pick Report code - unchanged)
     st.title("📦 Pick Report Analysis")
     tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
     with tab1:
@@ -140,7 +146,6 @@ elif page == "📦 Pick Report":
         st.dataframe(df_pick_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
 
 elif page == "📦 Stow Report":
-    # (Your original Stow Report code - unchanged)
     st.title("📦 Stow Report Analysis")
     tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
     with tab1:
@@ -150,21 +155,31 @@ elif page == "📦 Stow Report":
         st.subheader("Updated Stow Report")
         st.dataframe(df_stow_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
 
-# ... Add your other pages here if needed (3-Associate, Work Hours, etc.) ...
-
 elif page == "💰 Weekly Spend by Associate":
     st.title("💰 Weekly Spend by Associate")
     st.markdown("**April 5th – April 12th, 2026** | Based on Total Opportunities (Pick + Stow)")
 
+    # Key Metrics from your data
+    st.subheader("🔑 Key Metrics")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Narrossoh Total Volume", "1,814")
+    with col2:
+        st.metric("Team Total Volume", "10,978")
+    with col3:
+        st.metric("Narrossoh % of Team", "16.52%")
+    with col4:
+        st.metric("Equivalent to Associates", "2.97×")
+
     total_spend = df_spend["Estimated Value"].sum()
     total_opp = df_spend["Total Opportunities"].sum()
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
+    colA, colB, colC = st.columns(3)
+    with colA:
         st.metric("Total Weekly Spend", f"${total_spend:,.2f}")
-    with col2:
+    with colB:
         st.metric("Total Opportunities", f"{total_opp:,}")
-    with col3:
+    with colC:
         st.metric("Number of Associates", len(df_spend))
 
     st.subheader("Full Spending Allocation Table")
@@ -189,15 +204,17 @@ elif page == "💰 Weekly Spend by Associate":
     st.altair_chart(spend_chart, use_container_width=True)
 
     st.info("""
-    **Updates Applied:**
-    - **Estimated Spend** renamed to **Estimated Value**
-    - New column **Value per 32h (Ratio)** added (only narossoh is populated)
+    **Ratio Explanation:**
+    - **Value per 32h (Ratio)**: narossoh’s full estimated value (based on 32 hours worked).
+    - **Equivalent Associates**: narossoh’s output is equivalent to **2.97 average associates**.
     """)
 
 elif page == "⏱️ Narossoh Packing Time Calculator":
-    # (Your packing calculator code - unchanged)
     st.title("⏱️ Narossoh Packing Time Calculator")
-    st.dataframe(df_packing, use_container_width=True, hide_index=True)
+    st.dataframe(df_packing.style.format({
+        "Rate (per minute)": "{:.2f}",
+        "Rate (per hour)": "{:.1f}"
+    }), use_container_width=True, hide_index=True)
 
 # Final caption
 st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
