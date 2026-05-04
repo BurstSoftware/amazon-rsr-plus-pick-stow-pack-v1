@@ -11,16 +11,52 @@ st.set_page_config(
 )
 
 # ====================== PICK & STOW DATA ======================
-# (Your original pick/stow/normalized data remains unchanged)
-pick_data = { ... }   # Keep as is
-stow_data = { ... }
+pick_data = {
+    "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
+             "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
+             "nkaibrah", "matstrak", "abdiosmg", "musaom"],
+    "Opportunities": [746, 804, 169, 614, 214, 208, 110, 362, 68, 176, 69, 97, 37, 255, 186, 44, 55],
+    "Defects": [57, 14, 13, 13, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2],
+    "DPMO": [76408, 17412, 76923, 21172, 37383, 38461, 63636, 19337, 88235, 34090, 72463, 51546, 108108, 15686, 16129, 68181, 36363]
+}
+
+stow_data = {
+    "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
+             "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
+             "abdiosmg", "jnoonoor", "arrizola"],
+    "Opportunities": [1068, 758, 330, 668, 246, 445, 168, 518, 580, 594, 416, 204, 308, 127, 214, 63, 57],
+    "Defects": [164, 130, 117, 94, 45, 37, 22, 17, 15, 13, 12, 12, 9, 7, 4, 3, 3],
+    "DPMO": [153558, 171503, 354545, 140718, 182926, 83146, 130952, 32818, 25862, 21885, 28846, 58823, 29220, 55118, 18691, 47619, 52631]
+}
+
 df_pick_orig = pd.DataFrame(pick_data)
 df_stow_orig = pd.DataFrame(stow_data)
 
-# Normalized data...
-# (Keep your existing pick_norm_data and stow_norm_data)
+# Normalized Data
+pick_norm_data = {
+    "User": ["narossoh", "stajenni", "danijac", "arrizola", "hasnsai", "uiyps", "jnoonoor", 
+             "gpliegom", "mtiband r", "elizev", "hersmary", "mnimhas", "iqrayuss", 
+             "nkaibrah", "matstrak", "abdiosmg", "musaom"],
+    "Original_Defects": [57, 14, 13, 13, 8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2],
+    "Original_Opp": [746, 804, 169, 614, 214, 208, 110, 362, 68, 176, 69, 97, 37, 255, 186, 44, 55],
+    "New_Defects": [57, 13, 57, 16, 28, 29, 47, 14, 66, 25, 54, 38, 81, 12, 12, 51, 27],
+    "DPMO": [76408, 17426, 76408, 21448, 37534, 38874, 63003, 18767, 88472, 33512, 72386, 50938, 108579, 16086, 16086, 68365, 36193]
+}
 
-# ====================== WEEKLY SPEND DATA ======================
+stow_norm_data = {
+    "User": ["narossoh", "iqrayuss", "uiyps", "mnimhas", "hersmary", "mtiband r", "danijac", 
+             "nkaibrah", "gpliegom", "matstrak", "hasnsai", "elizev", "pmhusse", "stajenni", 
+             "abdiosmg", "jnoonoor", "arrizola"],
+    "Original_Defects": [164, 130, 117, 94, 45, 37, 22, 17, 15, 13, 12, 12, 9, 7, 4, 3, 3],
+    "Original_Opp": [1068, 758, 330, 668, 246, 445, 168, 518, 580, 594, 416, 204, 308, 127, 214, 63, 57],
+    "New_Defects": [164, 183, 379, 150, 195, 89, 140, 35, 28, 23, 31, 63, 31, 59, 20, 51, 56],
+    "DPMO": [153558, 171348, 354869, 140449, 182584, 83333, 131086, 32772, 26217, 21536, 29026, 58989, 29026, 55243, 18727, 47753, 52434]
+}
+
+df_pick_norm = pd.DataFrame(pick_norm_data)
+df_stow_norm = pd.DataFrame(stow_norm_data)
+
+# ====================== WEEKLY SPEND DATA (FULLY FILLED) ======================
 spend_data = {
     "User": ["narossoh", "gpliegom", "stajenni", "iqrayuss", "matstrak", "nkaibrah", "mnimhas", 
              "arrizola", "hasnsai", "uiyps", "mtiband r", "elizev", "danijac", "hersmary", 
@@ -34,42 +70,79 @@ spend_data = {
 
 df_spend = pd.DataFrame(spend_data)
 
-# === FILL ALL RATIO COLUMNS BASED ON UNITS ===
-df_spend = df_spend.rename(columns={"Estimated Spend": "Estimated Value"} if "Estimated Spend" in df_spend.columns else {})
-
+# === FILL ALL RATIO COLUMNS ===
 nar_value_per_hour = 50.75
 nar_cost_per_hour = 19.00
 nar_hours = 32
 nar_total_opp = 1814
 nar_equiv = 2.97
 
-# Calculations for all associates
+# Calculations for ALL associates
 df_spend["Value per 32h (Ratio)"] = (df_spend["Estimated Value"] / nar_value_per_hour * nar_hours).round(2)
 df_spend["Value per Hour"] = f"${nar_value_per_hour:.2f}"
 df_spend["Cost per Hour"] = f"${nar_cost_per_hour:.2f}"
 df_spend["Total Weekly Hours Worked"] = (df_spend["Estimated Value"] / nar_value_per_hour).round(1)
 df_spend["Equivalent Associates"] = (df_spend["Total Opportunities"] / (nar_total_opp / nar_equiv)).round(2).astype(str) + "×"
 
-# Format narossoh's Value per 32h as currency string
-df_spend.loc[df_spend["User"] == "narossoh", "Value per 32h (Ratio)"] = df_spend.loc[df_spend["User"] == "narossoh", "Value per 32h (Ratio)"].apply(lambda x: f"${x:,.2f}")
+# Special formatting for narossoh's Value per 32h
+mask = df_spend["User"] == "narossoh"
+df_spend.loc[mask, "Value per 32h (Ratio)"] = df_spend.loc[mask, "Value per 32h (Ratio)"].apply(lambda x: f"${x:,.2f}")
 
 # Reorder columns
 df_spend = df_spend[[
-    "User", 
-    "Pick Opportunities", 
-    "Stow Opportunities", 
-    "Total Opportunities",
-    "% of Total Volume", 
-    "Estimated Value", 
-    "Value per 32h (Ratio)",
-    "Value per Hour",
-    "Cost per Hour",
-    "Total Weekly Hours Worked",
-    "Equivalent Associates"
+    "User", "Pick Opportunities", "Stow Opportunities", "Total Opportunities",
+    "% of Total Volume", "Estimated Value", "Value per 32h (Ratio)",
+    "Value per Hour", "Cost per Hour", "Total Weekly Hours Worked", "Equivalent Associates"
 ]]
 
-# ====================== SIDEBAR & PAGES ======================
-# (Keep your existing sidebar and other pages unchanged)
+# ====================== PACKING DATA ======================
+packing_data = {
+    "Activity": ["Packing Items", "Trickling Packages"],
+    "Items/Packages": [88, 88],
+    "Time (minutes)": [47, 10],
+    "Rate (per minute)": [88/47, 88/10],
+    "Rate (per hour)": [(88/47)*60, (88/10)*60]
+}
+df_packing = pd.DataFrame(packing_data)
+
+# ====================== SIDEBAR ======================
+st.sidebar.title("📊 Navigation")
+page = st.sidebar.radio("Go to:", 
+    ["🏠 Home & Summary", 
+     "📦 Pick Report", 
+     "📦 Stow Report", 
+     "👥 3-Associate Comparison",
+     "⏰ Associate Work Hours & Productivity",
+     "📊 Team Overview",
+     "💰 Payroll Overview",
+     "💰 Weekly Spend by Associate",
+     "⏱️ Narossoh Packing Time Calculator"])
+
+# ====================== MAIN PAGES ======================
+if page == "🏠 Home & Summary":
+    st.title("📦 Warehouse Pick & Stow Performance Dashboard")
+    st.markdown("**April 5th – April 12th, 2026** | Amazon RSR+ Analysis")
+    st.info("This dashboard contains both original and normalized Pick & Stow reports.")
+
+elif page == "📦 Pick Report":
+    st.title("📦 Pick Report Analysis")
+    tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
+    with tab1:
+        st.subheader("Original Pick Report")
+        st.dataframe(df_pick_orig.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    with tab2:
+        st.subheader("Updated Pick Report")
+        st.dataframe(df_pick_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+
+elif page == "📦 Stow Report":
+    st.title("📦 Stow Report Analysis")
+    tab1, tab2 = st.tabs(["Original Data", "Updated (Normalized to narossoh)"])
+    with tab1:
+        st.subheader("Original Stow Report")
+        st.dataframe(df_stow_orig.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
+    with tab2:
+        st.subheader("Updated Stow Report")
+        st.dataframe(df_stow_norm.style.format({"DPMO": "{:,.0f}"}), use_container_width=True, hide_index=True)
 
 elif page == "💰 Weekly Spend by Associate":
     st.title("💰 Weekly Spend by Associate")
@@ -102,7 +175,6 @@ elif page == "💰 Weekly Spend by Associate":
         hide_index=True
     )
 
-    # Chart remains the same
     st.subheader("Spending Distribution (Top 10 Associates)")
     chart_data = df_spend.nlargest(10, "Estimated Value")
     spend_chart = alt.Chart(chart_data).mark_bar().encode(
@@ -112,7 +184,7 @@ elif page == "💰 Weekly Spend by Associate":
     ).properties(height=400)
     st.altair_chart(spend_chart, use_container_width=True)
 
-    st.info("All ratio columns are now calculated based on Total Opportunities (units) and narossoh’s benchmark rates.")
+    st.info("All ratio columns are now calculated proportionally based on Total Opportunities.")
 
 # Final caption
 st.caption("Amazon RSR+ Pick & Stow Dashboard • April 2026")
