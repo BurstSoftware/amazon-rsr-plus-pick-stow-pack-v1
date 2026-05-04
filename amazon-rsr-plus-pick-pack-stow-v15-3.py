@@ -56,7 +56,7 @@ stow_norm_data = {
 df_pick_norm = pd.DataFrame(pick_norm_data)
 df_stow_norm = pd.DataFrame(stow_norm_data)
 
-# ====================== WEEKLY SPEND DATA (FULLY FILLED) ======================
+# ====================== WEEKLY SPEND DATA ======================
 spend_data = {
     "User": ["narossoh", "gpliegom", "stajenni", "iqrayuss", "matstrak", "nkaibrah", "mnimhas", 
              "arrizola", "hasnsai", "uiyps", "mtiband r", "elizev", "danijac", "hersmary", 
@@ -84,9 +84,8 @@ df_spend["Cost per Hour"] = f"${nar_cost_per_hour:.2f}"
 df_spend["Total Weekly Hours Worked"] = (df_spend["Estimated Value"] / nar_value_per_hour).round(1)
 df_spend["Equivalent Associates"] = (df_spend["Total Opportunities"] / (nar_total_opp / nar_equiv)).round(2).astype(str) + "×"
 
-# Special formatting for narossoh's Value per 32h
-mask = df_spend["User"] == "narossoh"
-df_spend.loc[mask, "Value per 32h (Ratio)"] = df_spend.loc[mask, "Value per 32h (Ratio)"].apply(lambda x: f"${x:,.2f}")
+# Fix: Format Value per 32h as string for ALL rows (this was causing the error)
+df_spend["Value per 32h (Ratio)"] = df_spend["Value per 32h (Ratio)"].apply(lambda x: f"${x:,.2f}")
 
 # Reorder columns
 df_spend = df_spend[[
@@ -168,7 +167,6 @@ elif page == "💰 Weekly Spend by Associate":
         df_spend.style.format({
             "% of Total Volume": "{:.2f}%",
             "Estimated Value": "${:,.2f}",
-            "Value per 32h (Ratio)": "${:,.2f}",
             "Total Weekly Hours Worked": "{:.1f}"
         }),
         use_container_width=True,
